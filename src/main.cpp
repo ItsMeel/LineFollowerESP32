@@ -9,7 +9,7 @@
 // Use ttl levels for interpreting the sensors
 #define DIGITAL_SENSORS false
 
-// Invert the background and line color (Line: black -> true, white -> false)
+// Invert the background and line color (Line: white -> true, black -> false)
 #define SENSOR_INVERT false
 
 /* 
@@ -33,19 +33,19 @@
 #define UART_BAUDRATE 115200
 
 // PID Constants
-const float KP = 0.2742;
+const float KP = 0.20;
 const float KI = 0.0;
 const float KD = 0.0;
 const float ERROR_CAP = 1.0; // Keep at 1.0
 
-#define MOTOR_PIN_DER_STBY 16
-#define MOTOR_PIN_DER_PWM 18
-#define MOTOR_PIN_DER_IN1 17
-#define MOTOR_PIN_DER_IN2 5
-#define MOTOR_PIN_IZQ_STBY 19
-#define MOTOR_PIN_IZQ_PWM 23
-#define MOTOR_PIN_IZQ_IN1 21
-#define MOTOR_PIN_IZQ_IN2 22
+#define MOTOR_PIN_DER_STBY 19
+#define MOTOR_PIN_DER_PWM 23
+#define MOTOR_PIN_DER_IN1 22
+#define MOTOR_PIN_DER_IN2 21
+#define MOTOR_PIN_IZQ_STBY 16
+#define MOTOR_PIN_IZQ_PWM 18
+#define MOTOR_PIN_IZQ_IN1 5
+#define MOTOR_PIN_IZQ_IN2 17
 
 #define PWM_FREQUENCY 5000
 #define PWM_CHANNEL_MOTOR_DER 0
@@ -53,14 +53,14 @@ const float ERROR_CAP = 1.0; // Keep at 1.0
 #define PWM_MAX_MOTOR_DER 180
 #define PWM_MAX_MOTOR_IZQ 180
 
-#define SENSOR_PIN_DER_4 25
-#define SENSOR_PIN_DER_3 36 
-#define SENSOR_PIN_DER_2 39 
-#define SENSOR_PIN_DER_1 32 
-#define SENSOR_PIN_IZQ_1 33 
-#define SENSOR_PIN_IZQ_2 34 
-#define SENSOR_PIN_IZQ_3 35 
-#define SENSOR_PIN_IZQ_4 26
+#define SENSOR_PIN_DER_4 26
+#define SENSOR_PIN_DER_3 35
+#define SENSOR_PIN_DER_2 34 
+#define SENSOR_PIN_DER_1 33
+#define SENSOR_PIN_IZQ_1 32
+#define SENSOR_PIN_IZQ_2 39
+#define SENSOR_PIN_IZQ_3 36 
+#define SENSOR_PIN_IZQ_4 25
 #define SENSOR_PIN_LINE_LEDON 27
 #define SENSOR_ANALOG_TRESHOLD 3900
 
