@@ -1,3 +1,6 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
 // Enable UART logging
 #define SERIAL_LOGGING false
 #define UART_BAUDRATE 115200
@@ -68,3 +71,5 @@ const float ERROR_CAP = 1.0; // Keep at 1.0
 // IR Starter GPIO
 #define STARTER_PIN_START 14
 #define STARTER_PIN_STOP 13
+
+#endif
