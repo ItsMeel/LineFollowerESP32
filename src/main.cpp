@@ -32,10 +32,10 @@
 #define LOOP_PERIOD_MS 10
 #define UART_BAUDRATE 115200
 
-// PID Constants
-const float KP = 0.20;
-const float KI = 0.0;
-const float KD = 0.0;
+// PID Constants Kp0.5 Ki0.0001 Kd1
+const float KP = 0.4;
+const float KI = 0.00005;
+const float KD = 3;
 const float ERROR_CAP = 1.0; // Keep at 1.0
 
 #define MOTOR_PIN_DER_STBY 19
@@ -192,13 +192,19 @@ void calcularErrorSensores(){
 
 void calcularErrorPID(){
   TiempoActual = micros();
-  DiferenciaTiempo = TiempoActual - TiempoPrevio;
+  /*DiferenciaTiempo = TiempoActual - TiempoPrevio;
   ErrorIntegral += KP * KI * ErrorSensores * DiferenciaTiempo;
   ErrorDiferencial = KP * KD * (ErrorSensores - ErrorSensoresPrevio) / DiferenciaTiempo;
   ErrorProporcional = KP * ErrorSensores;
   Error = ErrorProporcional + ErrorIntegral + ErrorDiferencial;
   ErrorSensoresPrevio = ErrorSensores;
-  TiempoPrevio = TiempoActual;
+  TiempoPrevio = TiempoActual;*/
+
+  ErrorIntegral += KI * ErrorSensores;
+  ErrorDiferencial = KD * (ErrorSensores - ErrorSensoresPrevio);
+  ErrorProporcional = KP * ErrorSensores;
+  Error = ErrorProporcional + ErrorIntegral + ErrorDiferencial;
+  ErrorSensoresPrevio = ErrorSensores;
   
   if(Error > MAX_ERROR){
     Error = MAX_ERROR;
