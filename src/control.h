@@ -5,10 +5,6 @@
 #include <config.h>
 #include <hardware.h>
 
-uint64_t TiempoActual;
-uint64_t TiempoPrevio;
-uint64_t DiferenciaTiempo;
-
 float ErrorSensores;
 float ErrorSensoresPrevio;
 float Error;
@@ -73,14 +69,11 @@ void calcularErrorSensores(){
 }
 
 void calcularErrorPID(){
-  TiempoActual = micros();
-  DiferenciaTiempo = TiempoActual - TiempoPrevio;
-  ErrorIntegral += KP * KI * ErrorSensores * DiferenciaTiempo;
-  ErrorDiferencial = KP * KD * (ErrorSensores - ErrorSensoresPrevio) / DiferenciaTiempo;
+  ErrorIntegral += KI * ErrorSensores;
+  ErrorDiferencial = KD * (ErrorSensores - ErrorSensoresPrevio);
   ErrorProporcional = KP * ErrorSensores;
   Error = ErrorProporcional + ErrorIntegral + ErrorDiferencial;
   ErrorSensoresPrevio = ErrorSensores;
-  TiempoPrevio = TiempoActual;
   
   if(Error > MAX_ERROR){
     Error = MAX_ERROR;
