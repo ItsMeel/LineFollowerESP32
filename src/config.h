@@ -34,9 +34,9 @@
 #define LOOP_PERIOD_MS 10
 
 // PID Constants
-const float KP = 0.20;
-const float KI = 0.0;
-const float KD = 0.0;
+const float DEFAULT_KP = 0.20;
+const float DEFAULT_KI = 0.0;
+const float DEFAULT_KD = 0.0;
 const float ERROR_CAP = 1.0; // Keep at 1.0
 
 // Motor GPIO
@@ -71,5 +71,18 @@ const float ERROR_CAP = 1.0; // Keep at 1.0
 // IR Starter GPIO
 #define STARTER_PIN_START 14
 #define STARTER_PIN_STOP 13
+
+// Bluetooth
+#define BLUETOOTH_NAME "SpeedyGonzales"
+#define BLUETOOTH_PASSWORD ""
+
+// FreeRTOS Tasks
+#define EXECUTEPID_HEAP_SIZE 4096
+#define EXECUTEPID_PRIORITY 1
+#define EXECUTEPID_CORE 1
+
+#define EXECUTEBTINTERFACE_HEAP_SIZE 4096
+#define EXECUTEBTINTERFACE_PRIORITY 1
+#define EXECUTEBTINTERFACE_CORE 0
 
 #endif

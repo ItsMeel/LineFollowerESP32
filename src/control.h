@@ -3,7 +3,19 @@
 
 #include <Arduino.h>
 #include <config.h>
+#include <commonDefinitions.h>
 #include <hardware.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
+uint32_t NextIterationMS = 0;
+
+bool RunMotors = false;
+bool EnableLogging = false;
+
+float Kp = DEFAULT_KP;
+float Ki = DEFAULT_KI;
+float Kd = DEFAULT_KD;
 
 float ErrorSensores;
 float ErrorSensoresPrevio;
@@ -69,9 +81,9 @@ void calcularErrorSensores(){
 }
 
 void calcularErrorPID(){
-  ErrorIntegral += KI * ErrorSensores;
-  ErrorDiferencial = KD * (ErrorSensores - ErrorSensoresPrevio);
-  ErrorProporcional = KP * ErrorSensores;
+  ErrorIntegral += Ki * ErrorSensores;
+  ErrorDiferencial = Kd * (ErrorSensores - ErrorSensoresPrevio);
+  ErrorProporcional = Kp * ErrorSensores;
   Error = ErrorProporcional + ErrorIntegral + ErrorDiferencial;
   ErrorSensoresPrevio = ErrorSensores;
   
@@ -126,4 +138,121 @@ void ejecutarMotores(){
     }
   #endif
 }
+
+void resetErrors(){
+  ErrorSensoresPrevio = 0;
+  Error = 0;
+  ErrorProporcional = 0;
+  ErrorIntegral = 0;
+  ErrorDiferencial = 0;
+}
+
+void resetPIDConstants(){
+  Kp = DEFAULT_KP;
+  Ki = DEFAULT_KI;
+  Kd = DEFAULT_KD;
+  resetErrors();
+}
+
+void getPIDConstants(){
+  PIDCONSTANTS_STRUCT PIDConstants;
+  PIDConstants.Kp = Kp;
+  PIDConstants.Ki = Ki;
+  PIDConstants.Kd = Kd;
+  xQueueSendToBack(QueueGetPIDConstants, &PIDConstants, 0);
+}
+
+void sentPIDLog(){
+  PIDLOGGING_STRUCT PIDLogging;
+  PIDLogging.RunMotors = RunMotors;
+  PIDLogging.Kp = Kp;
+  PIDLogging.Ki = Ki;
+  PIDLogging.Kd = Kd;
+  PIDLogging.ErrorSensores = ErrorSensores;
+  PIDLogging.ErrorSensoresPrevio = ErrorSensoresPrevio;
+  PIDLogging.ErrorProporcional = ErrorProporcional;
+  PIDLogging.ErrorIntegral = ErrorIntegral;
+  PIDLogging.ErrorDiferencial = ErrorDiferencial;
+  PIDLogging.Error = Error;
+  xQueueSendToBack(QueuePIDLogging, &PIDLogging, 0);
+}
+
+void readQueue(){
+  if(uxQueueMessagesWaiting(QueuePIDCommands)){
+    PIDCOMMANDS_ENUM Command;
+    xQueueReceive(QueuePIDCommands, &Command, 0);
+    switch (Command){
+      case PIDCOMMANDS_STOPMOTORS:
+        RunMotors = false;
+      break;
+
+      case PIDCOMMANDS_RUNMOTORS:
+        RunMotors = true;
+      break;
+
+      case PIDCOMMANDS_RESETPIDCONSTANTS:
+        resetPIDConstants();
+      break;
+
+      case PIDCOMMANDS_RESETERROR:
+        resetErrors();
+      break;
+
+      case PIDCOMMANDS_GETPIDCONSTANTS:
+        getPIDConstants();
+      break;
+
+      case PIDCOMMANDS_ENABLEPIDLOGGING:
+        EnableLogging = true;
+      break;
+
+      case PIDCOMMANDS_DISABLEPIDLOGGING:
+        EnableLogging = false;
+      break;
+
+      default:
+      break;
+    }
+  }
+
+  if(uxQueueMessagesWaiting(QueueSetPIDConstants)){
+    PIDCONSTANTS_STRUCT PIDConstants;
+    xQueueReceive(QueueSetPIDConstants, &PIDConstants, 0);
+    Kp = PIDConstants.Kp;
+    Ki = PIDConstants.Ki;
+    Kd = PIDConstants.Kd;
+    resetErrors();
+  }
+}
+
+void executePID(void * parameter){
+  while (1){
+    if(millis() > NextIterationMS){
+      if(NextIterationMS == 0){
+        NextIterationMS = millis();
+      }
+
+      NextIterationMS += LOOP_PERIOD_MS;
+
+      readQueue();
+      leerSensores();
+      calcularErrorSensores();
+      calcularErrorPID();
+
+      if(RunMotors){
+        ejecutarMotores();
+      }
+      else{
+        setPWMMotorDer(0);
+        setPWMMotorIzq(0);
+      }
+
+      if(EnableLogging){
+        sentPIDLog();
+      }
+    }
+    vTaskDelay(1);
+  }
+}
+
 #endif
